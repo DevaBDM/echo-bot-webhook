@@ -1,50 +1,25 @@
-#include <csignal>
-#include <cstdio>
-#include <cstdlib>
-#include <exception>
-#include <string>
+#include <iostream>
+#include <boost/asio.hpp>
 
-#include <tgbot/tgbot.h>
+using namespace boost::asio;
+using namespace boost::asio::ip;
 
-using namespace std;
-using namespace TgBot;
+void handle_request(tcp::socket& socket) {
+    std::string message = "HTTP/1.1 200 OK\r\nContent-Length: 12\r\n\r\nHello, world!";
+    boost::system::error_code ignored_error;
+    write(socket, buffer(message), ignored_error);
+}
 
 int main() {
-    string token(getenv("TOKEN"));
-    printf("Token: %s\n", token.c_str());
-    string webhookUrl(getenv("WEBHOOK_URL"));
-    unsigned int port(atoi(getenv("PORT")));
-    printf("Webhook url: %s\n", webhookUrl.c_str());
-    printf("port: %u\n", port);
+    io_service io_service;
+    tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 8080));
 
-    Bot bot(token);
-    bot.getEvents().onCommand("start", [&bot](Message::Ptr message) {
-        bot.getApi().sendMessage(message->chat->id, "Hi!");
-    });
-    bot.getEvents().onAnyMessage([&bot](Message::Ptr message) {
-        printf("User wrote %s\n", message->text.c_str());
-        if (StringTools::startsWith(message->text, "/start")) {
-            return;
-        }
-        bot.getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
-    });
-
-    signal(SIGINT, [](int s) {
-        printf("SIGINT got\n");
-        exit(0);
-    });
-
-    try {
-        printf("Bot username: %s\n", bot.getApi().getMe()->username.c_str());
-
-        TgWebhookTcpServer webhookServer(port, bot);
-
-        printf("Server starting\n");
-        bot.getApi().setWebhook(webhookUrl);
-        webhookServer.start();
-    } catch (exception& e) {
-        printf("error: %s\n", e.what());
+    while (true) {
+        tcp::socket socket(io_service);
+        acceptor.accept(socket);
+        handle_request(socket);
     }
 
     return 0;
 }
+
