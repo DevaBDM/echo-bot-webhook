@@ -13,7 +13,9 @@ int main() {
     string token(getenv("TOKEN"));
     printf("Token: %s\n", token.c_str());
     string webhookUrl(getenv("WEBHOOK_URL"));
+    unsigned int port(atoi(getenv("PORT")));
     printf("Webhook url: %s\n", webhookUrl.c_str());
+    printf("port: %u\n", port);
 
     Bot bot(token);
     bot.getEvents().onCommand("start", [&bot](Message::Ptr message) {
@@ -35,7 +37,7 @@ int main() {
     try {
         printf("Bot username: %s\n", bot.getApi().getMe()->username.c_str());
 
-        TgWebhookTcpServer webhookServer(8080, bot);
+        TgWebhookTcpServer webhookServer(port, bot);
 
         printf("Server starting\n");
         bot.getApi().setWebhook(webhookUrl);
