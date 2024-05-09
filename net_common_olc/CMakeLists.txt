@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
-project(net_olc_simpleServer)
+project(net_common_olc)
 
 # create compile_commands.json file for clangd to use
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -24,7 +24,7 @@ endif()
 file(GLOB_RECURSE SOURCES "./src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE include net_common_olc)
+target_include_directories(${PROJECT_NAME} PRIVATE include)
 add_custom_command(
   TARGET ${PROJECT_NAME}
   POST_BUILD

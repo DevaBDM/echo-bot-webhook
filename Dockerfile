@@ -1,7 +1,8 @@
 FROM ubuntu:latest
-RUN apt-get update && apt-get install -y g++ libboost-all-dev
+RUN apt-get update && apt-get install -y g++ libboost-all-dev cmake
 WORKDIR /app
 COPY . /app
-RUN g++ -std=c++11 -o server src/main.cpp -lboost_system -lpthread
-CMD ./server
+RUN cmake .
+RUN cmake --build .
+CMD ./build/debug/net_olc_simpleServer 
 
